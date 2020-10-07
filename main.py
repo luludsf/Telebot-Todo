@@ -32,6 +32,57 @@ def criar_tarefa(message):
 
     bot.send_message(message.chat.id,'Tarefa criada com sucesso!')
     bot.state = None
+
+@bot.message_handler(commands=['tarefas'])
+def listar_tarefas(message):
+    chat_id = message.chat.id # id do usuario
+    teste = r.hgetall(chat_id) # lista de tarefas 
+    ind= {k:i for i,k in enumerate(teste.keys())} #indice
+    lista = ""
+    if not teste:
+        lista = "Voce ainda nao possui tarefas."
+    else: 
+        lista = "Lista de Tarefas: \n\n"
+        for key, value in teste.items():
+            if(value.decode('utf-8') == 'a'):
+                lista = lista + str(ind[key] + 1) + ' ' + key.decode('utf-8') + '\n'
+            else:
+                lista = lista + str(ind[key] + 1) + ' ' + key.decode('utf-8') + " ✔" + '\n'
+
+    bot.send_message(message.chat.id, lista)   
+    bot.state = None
+
+@bot.message_handler(commands=['done'])
+def done(message):
+    listar_tarefas(message)
+    bot.send_message(message.chat.id, 'Por favor digite o numero da tarefa finalizada:')
+    bot.state = DONE
+
+@bot.message_handler(func=lambda msg:bot.state==DONE)
+def marcar_inativo(message):
+    chat_id = message.chat.id # id do usuario
+    identificador = int(message.text)
+    listaTarefas = list(r.hgetall(chat_id)) # lista de tarefas 
+    tam = len(listaTarefas)
+    if(identificador > 0 and identificador <= tam):
+        field = listaTarefas[identificador - 1]
+        r.hset(chat_id, field,'i')
+    bot.state = None    
+
+
+@bot.message_handler(commands=['apagar'])
+def apagar_inativo(message):
+    chat_id = message.chat.id # id do usuario
+    teste = r.hgetall(chat_id) # lista de tarefas 
+
+    if not teste:
+        lista = "Voce ainda não possui tarefas."
+    else: 
+        for key, value in teste.items():
+            if(value.decode('utf-8') == 'i'):
+                r.hdel(chat_id,key)
+    bot.state = None
+
         
 bot.polling()
 
