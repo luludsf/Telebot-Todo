@@ -83,6 +83,7 @@ def apagar_inativo(message):
                 r.hdel(chat_id,key)
     bot.state = None
 
+# Nesta implementação sao apresentados botoes de dois em dois (lado a lado)
 def botoes(opcoes):
     keyboard = types.InlineKeyboardMarkup()
     arrayImparDados = len(opcoes) % 2 != 0
@@ -96,8 +97,12 @@ def botoes(opcoes):
         button = types.InlineKeyboardButton(
             text=opcoes[-1], callback_data=opcoes[-1])
         keyboard.add(button)  
-    return keyboard    
+    return keyboard 
 
+#Exemplo de metodo para manipulacao da resposta do botao selecionado pelo usuario 
+@bot.callback_query_handler(func=lambda call: call.data in ["Sim", "Não"])
+def callback_inline_location(call):       
+    print(call.data)
         
 bot.polling()
 
