@@ -83,6 +83,21 @@ def apagar_inativo(message):
                 r.hdel(chat_id,key)
     bot.state = None
 
+def botoes(opcoes):
+    keyboard = types.InlineKeyboardMarkup()
+    arrayImparDados = len(opcoes) % 2 != 0
+    for i, k in zip(opcoes[0::2], opcoes[1::2]):
+        button_1 = types.InlineKeyboardButton(
+            text=i, callback_data=i)
+        button_2 = types.InlineKeyboardButton(
+            text=k, callback_data=k)
+        keyboard.row(button_1, button_2)
+    if(arrayImparDados):
+        button = types.InlineKeyboardButton(
+            text=opcoes[-1], callback_data=opcoes[-1])
+        keyboard.add(button)  
+    return keyboard    
+
         
 bot.polling()
 
